@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Where is my magaz?</title>
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+  <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.51.0/mapbox-gl.js'></script>
+
+</head>
+<body>
+<style>
+   body { 
+      margin:0; 
+      padding:0; 
+    }
+    #map { 
+      position:absolute; 
+      top:0; 
+      bottom:0; 
+      width:100%; 
+    }
+    aside{
+      position: absolute;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      top: 20px;
+      left: 20px;
+    }
+    .title{
+      display: flex;
+      margin: 10px 0px 30px 0px;
+      text-transform: uppercase;
+      font-size: 30px;
+      color: whitesmoke;
+    }
+    #menu{
+      display: flex;
+      background-color:black;
+      color: aliceblue;
+      flex-direction: column;
+    }
+    button{
+      width:50%;
+    }
+</style>
+<aside>
+  <div class='title'>Where is my magaz?</div>
+  <div id='menu'>rejrke</div>
+</aside>>
+
+<div id='map'></div>
+
+<script>
+mapboxgl.accessToken = 'pk.eyJ1IjoibGVuYWVtYXlhIiwiYSI6ImNpa3VhbXE5ZjAwMXB3eG00ajVyc2J6ZTIifQ.kmZ4yVcNrupl4H8EonM3aQ';
+const map = new mapboxgl.Map({
+    container: 'map', 
+    style: 'mapbox://styles/lenaemaya/cjn65ilsr0slc2smrvmad8eyj', 
+    center: [30.268824, 59.938058], 
+    zoom: 10 
+});
+
+
+const toggleableLayerIds = [ 'road-label-large', 'road-label-medium' ];
+
+for (var i = 0; i < toggleableLayerIds.length; i++) {
+    const id = toggleableLayerIds[i];
+
+    const link = document.createElement('button');
+    link.href = '#';
+    link.className = 'active';
+    link.textContent = id;
+
+    link.onclick = function (e) {
+        var clickedLayer = this.textContent;
+        e.preventDefault();
+        e.stopPropagation();
+
+        var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
+
+        if (visibility === 'visible') {
+            map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+            this.className = '';
+        } else {
+            this.className = 'active';
+            map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+        }
+    };
+
+    var layers = document.getElementById('menu');
+    layers.appendChild(link);
+}
+</script>
+
+</body>
+</html>
