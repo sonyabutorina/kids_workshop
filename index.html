@@ -2,16 +2,16 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Where is my magaz?</title>
+  <title>Shodi za hlebom</title>
   <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
   <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.51.0/mapbox-gl.js'></script>
-
 </head>
 <body>
 <style>
    body { 
       margin:0; 
-      padding:0; 
+      padding:0;
+      font-family: Arial, Helvetica, sans-serif; 
     }
     #map { 
       position:absolute; 
@@ -36,59 +36,139 @@
     }
     #menu{
       display: flex;
-      background-color:black;
-      color: aliceblue;
+      
+      color: whitesmoke;
       flex-direction: column;
     }
-    button{
-      width:50%;
+    #menu > div {
+      font-size: 16px;
+      color: whitesmoke;
+      padding: 2px;
+      text-decoration: none;
+      border: 0.5px solid whitesmoke;
+      text-align: left;
+    }
+    #menu > div:hover {
+      background-color: blue;
+      color: whitesmoke;
+    }
+    #menu > div.active {
+      background-color: rgba(0,0,0,0);
+      color: whitesmoke;
+      border: 0.5px solid blue;
+    }
+    #menu > div.active:hover {
+      background-color: blue;
     }
 </style>
 <aside>
-  <div class='title'>Where is my magaz?</div>
-  <div id='menu'>rejrke</div>
+  <div class='title'>Shodi za hlebom</div>
+  <div id='menu'></div>
 </aside>>
-
 <div id='map'></div>
 
 <script>
 mapboxgl.accessToken = 'pk.eyJ1IjoibGVuYWVtYXlhIiwiYSI6ImNpa3VhbXE5ZjAwMXB3eG00ajVyc2J6ZTIifQ.kmZ4yVcNrupl4H8EonM3aQ';
+
 const map = new mapboxgl.Map({
     container: 'map', 
     style: 'mapbox://styles/lenaemaya/cjn65ilsr0slc2smrvmad8eyj', 
     center: [30.268824, 59.938058], 
-    zoom: 10 
+    zoom: 10.5 
 });
 
+let framesPerSecond = 15; 
+let initialOpacity = 1
+let opacity = initialOpacity;
+let initialRadius = 12;
+let radius = initialRadius;
+let maxRadius = 25;
 
-const toggleableLayerIds = [ 'road-label-large', 'road-label-medium' ];
-
-for (var i = 0; i < toggleableLayerIds.length; i++) {
-    const id = toggleableLayerIds[i];
-
-    const link = document.createElement('button');
-    link.href = '#';
-    link.className = 'active';
-    link.textContent = id;
-
-    link.onclick = function (e) {
-        var clickedLayer = this.textContent;
-        e.preventDefault();
-        e.stopPropagation();
-
-        var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
-
-        if (visibility === 'visible') {
-            map.setLayoutProperty(clickedLayer, 'visibility', 'none');
-            this.className = '';
-        } else {
-            this.className = 'active';
-            map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+map.on('load', () => {
+  map.addSource('circleData', {
+    type: 'geojson',
+    data: {
+      type: "FeatureCollection",
+      features: [
+        {
+          "type": "Feature",
+          "properties": {},
+          "geometry": {
+           "type": "Point",
+           "coordinates": [
+            30.312968,
+            59.911925 
+            ]
+          }
         }
-    };
+      ]
+  }
+  });
 
-    var layers = document.getElementById('menu');
-    layers.appendChild(link);
+  map.addLayer({
+    id: 'location_circle',
+    type: 'circle',
+    source: 'circleData',
+    paint: {
+        "circle-radius": initialRadius,
+        "circle-radius-transition": {duration: 0},
+        "circle-opacity-transition": {duration: 0},
+        "circle-color": "#0000FF"
+    },
+  });
+
+  map.addLayer({
+    id: 'location',
+    type: 'circle',
+    source: 'circleData',
+    paint: {
+        "circle-radius": 4,
+        "circle-color": "#0000FF",
+        "circle-stroke-width": 2,
+        "circle-stroke-color": "#fff"
+    },
+  });
+  function animateMarker(timestamp) {
+    setTimeout(function(){
+        requestAnimationFrame(animateMarker);
+        radius += (maxRadius - radius) / framesPerSecond;
+        opacity -= ( .9 / framesPerSecond );
+        map.setPaintProperty('location_circle', 'circle-radius', radius);
+        map.setPaintProperty('location_circle', 'circle-opacity', opacity);
+        if (opacity <= 0.05) {
+            radius = initialRadius;
+            opacity = initialOpacity;
+        } 
+    }, 1000 / framesPerSecond);
+  }
+  animateMarker(0);
+});
+
+toggleLayer('1', ['shops'], 'Магазины');
+toggleLayer('2', ['heatmap'], 'Хитмап');
+toggleLayer('3', ['isochhrone', 'isochhrone-2'], 'Изохроны');
+
+function toggleLayer (id, ids, name){
+  const button = document.createElement('div');
+  button.textContent = name;
+
+  button.onclick = function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+          
+    for (layers in ids) {
+      var visibility = map.getLayoutProperty(ids[layers], 'visibility');
+      if (visibility === 'visible') {
+        map.setLayoutProperty(ids[layers], 'visibility', 'none');
+        this.className = '';
+      } else {
+        this.className = 'active';
+        map.setLayoutProperty(ids[layers], 'visibility', 'visible');
+      }
+    }
+  };
+  var layers = document.getElementById('menu');
+  layers.appendChild(button);
 }
 </script>
 
