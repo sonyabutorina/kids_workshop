@@ -96,8 +96,8 @@ map.on('load', () => {
           "geometry": {
            "type": "Point",
            "coordinates": [
-            30.312968,
-            59.911925 
+            30.347616,
+            59.923903
             ]
           }
         }
@@ -144,9 +144,9 @@ map.on('load', () => {
   animateMarker(0);
 });
 
-toggleLayer('1', ['shops'], 'Магазины');
+toggleLayer('1', ['my-shops'], 'Магазины');
 toggleLayer('2', ['heatmap'], 'Хитмап');
-toggleLayer('3', ['isochhrone', 'isochhrone-2'], 'Изохроны');
+toggleLayer('3', ['isochhrone-polygon', 'isochhrone-line'], 'Изохроны');
 
 function toggleLayer (id, ids, name){
   const button = document.createElement('div');
